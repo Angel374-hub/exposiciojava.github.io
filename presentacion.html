@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Presentación JavaScript Animada</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #222;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      max-width: 800px;
+      width: 90%;
+      padding: 20px;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      transition: transform 1s ease-in-out;
+    }
+    .card.flip {
+      transform: rotateY(180deg);
+    }
+    .card-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 28px;
+      font-weight: bold;
+      animation: bounce 1.5s infinite alternate;
+    }
+    .card-description {
+      color: gray;
+      font-size: 14px;
+    }
+    .card-content {
+      min-height: 300px;
+      padding: 10px;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.8s, transform 0.8s;
+    }
+    .card-content.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-outline {
+      border: 2px solid #fff;
+      background: transparent;
+      color: #fff;
+    }
+    .btn-outline:hover:enabled {
+      background: rgba(255,255,255,0.2);
+      transform: scale(1.1);
+    }
+    .btn-primary {
+      background: #ff4081;
+      color: white;
+      box-shadow: 0 0 15px #ff4081;
+    }
+    .btn-primary:hover:enabled {
+      background: #f50057;
+      transform: scale(1.15) rotate(2deg);
+      box-shadow: 0 0 25px #ff80ab;
+    }
+    /* Animaciones clave */
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    /* Estilos extra para slides */
+    .highlight { background: #e0f7fa; padding: 10px; border-radius: 8px; margin-top: 10px; }
+    .bg-green {background: #e6f9ec; border-left: 4px solid #4caf50; padding: 10px; margin-bottom: 10px;}
+    .bg-red {background: #fdeaea; border-left: 4px solid #f44336; padding: 10px; margin-bottom: 10px;}
+    .bg-blue {background: #e8f0fe; border-radius: 10px; padding: 10px; margin-bottom: 10px;}
+    ul {margin-left: 20px;}
+    h1, h2, h3 {margin: 0 0 10px;}
+    .center {text-align: center;}
+    .flash { animation: flicker 1.5s infinite; color: #ff4081; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="card-header">
+      <div class="card-title" id="slide-title">Título</div>
+      <div class="card-description">Grupo 7: Jamal Paredes, Roberto Ángel, Adrian Osilis, Lariel de la Cruz</div>
+    </div>
+    <div class="card-content" id="slide-content"></div>
+    <div class="controls">
+      <button class="btn-outline" id="prevBtn">⬅ Anterior</button>
+      <span id="counter"></span>
+      <button class="btn-primary" id="nextBtn">Siguiente ➡</button>
+    </div>
+  </div>
+
+  <script>
+    const slides = [
+      { title: "JavaScript: Presentación",
+        content: `<div class="center"><h1>JavaScript</h1><p>Una visión completa del lenguaje de la web</p>
+          <div class="highlight"><p><b>GRUPO 7</b></p><p>Jamal Paredes</p><p>Roberto Ángel</p><p>Adrian Osilis</p><p>Lariel de la Cruz</p></div></div>` },
+      { title: "Historia de JavaScript",
+        content: `<p><b>1995:</b> Creado por Brendan Eich en Netscape en sólo 10 días</p>
+          <p><b>Nombre original:</b> Mocha → LiveScript → JavaScript</p>
+          <p><b>Propósito inicial:</b> Añadir interactividad a las páginas web</p>
+          <p><b>1997:</b> Estandarizado como ECMAScript por ECMA International</p>
+          <div class="highlight">Curiosidad: El nombre “JavaScript” fue marketing, no tiene relación con Java.</div>` },
+      { title: "Evolución de JavaScript",
+        content: `<div class="bg-blue"><b>ES1 (1997)</b> – Primera estandarización</div>
+          <div class="bg-blue"><b>ES5 (2009)</b> – JSON, strict mode, métodos de array</div>
+          <div class="bg-blue"><b>ES6/ES2015</b> – Clases, módulos, arrow functions, let/const</div>
+          <div class="bg-blue"><b>ES2016-2023</b> – Async/await, optional chaining, nullish coalescing</div>
+          <p>Actualizaciones anuales desde 2015</p>` },
+      { title: "Ventajas de JavaScript",
+        content: `<div class="bg-green">✅ Universal - Funciona en todos los navegadores</div>
+          <div class="bg-green">✅ Versátil - Frontend, backend, móvil, desktop</div>
+          <div class="bg-green">✅ Gran ecosistema - Frameworks y librerías</div>
+          <div class="bg-green">✅ Fácil de aprender</div>
+          <div class="bg-green">✅ Alta demanda laboral</div>` },
+      { title: "Desventajas de JavaScript",
+        content: `<div class="bg-red">❌ Seguridad: XSS, CSRF</div>
+          <div class="bg-red">❌ Diferencias entre navegadores</div>
+          <div class="bg-red">❌ Tipado débil</div>
+          <div class="bg-red">❌ Menos eficiente que lenguajes compilados</div>` },
+      { title: "Características Principales",
+        content: `<div class="bg-blue"><b>Interpretado:</b> No necesita compilación</div>
+          <div class="bg-blue"><b>Multi-paradigma:</b> OOP, funcional, procedural</div>
+          <div class="bg-blue"><b>Dinámico:</b> Tipado débil y dinámico</div>
+          <div class="bg-blue"><b>Asíncrono:</b> Callbacks, promesas, async/await</div>
+          <div class="bg-blue"><b>Prototipos:</b> Herencia prototípica</div>` },
+      { title: "Compatibilidad con Sistemas Operativos",
+        content: `<h3>Navegadores</h3><ul><li>Chrome</li><li>Firefox</li><li>Safari</li><li>Edge</li></ul>
+          <h3>Node.js (Backend)</h3><ul><li>Windows</li><li>macOS</li><li>Linux</li><li>Docker</li></ul>
+          <div class="highlight">JavaScript es independiente del sistema operativo</div>` },
+      { title: "Conclusión",
+        content: `<div class="center"><div class="bg-blue"><p><b>JavaScript es el lenguaje de la web</b></p></div>
+          <p>Relevante tras más de 25 años</p>
+          <p>Fundamental en frontend y backend</p>
+          <p class="flash">¡Gracias por su atención!</p></div>` }
+    ];
+
+    let currentSlide = 0;
+
+    const card = document.getElementById("card");
+    const titleEl = document.getElementById("slide-title");
+    const contentEl = document.getElementById("slide-content");
+    const counterEl = document.getElementById("counter");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function renderSlide(flip = false) {
+      if (flip) {
+        card.classList.add("flip");
+        setTimeout(() => {
+          card.classList.remove("flip");
+          updateContent();
+        }, 500);
+      } else {
+        updateContent();
+      }
+    }
+
+    function updateContent() {
+      titleEl.innerHTML = slides[currentSlide].title;
+      contentEl.classList.remove("show");
+      setTimeout(() => {
+        contentEl.innerHTML = slides[currentSlide].content;
+        contentEl.classList.add("show");
+      }, 100);
+      counterEl.textContent = `${currentSlide + 1} / ${slides.length}`;
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === slides.length - 1;
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentSlide > 0) {
+        currentSlide--;
+        renderSlide(true);
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        renderSlide(true);
+      }
+    });
+
+    // Inicializar
+    renderSlide();
+  </script>
+</body>
+</html>
